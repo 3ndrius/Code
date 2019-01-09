@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import styled from 'styled-components'
-import Chart from 'chart.js';
-
 
 const Wrap = styled.div`
     max-width:1200px;
@@ -66,38 +64,7 @@ class App extends Component {
     init: null
   }
   componentDidMount = () => {
-    var ctx = document.getElementById("myChart");
-var myChart = new Chart(ctx, {
-    type: 'pie',
-    data: {
-        labels: ["Red", "Blue", "Yellow"],
-        datasets: [{
-            label: '# of Votes',
-            data: [30, 12],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-               
-            ],
-            borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero:true
-                }
-            }]
-        }
-    }
-});
-
-fetch(`https://api.github.com//orgs/octokit/repos`)
+fetch(`https://api.github.com/users/tonyspiro/following`)
 .then(data => data.json())
 .then(data => 
     this.setState({
@@ -133,7 +100,7 @@ fetch(`https://api.github.com//orgs/octokit/repos`)
           <Header>GithubUserFinder</Header>
         </Wrap>
         <Wrap>
-          <SearchBox onChange={this.handleChange} value={this.state.value}/>
+          <SearchBox onChange={this.handleChange} value={this.state.value} placeholder="Username"/>
           <Btn onClick={this.getUser}>Search</Btn>
         </Wrap>
         <Wrap>
@@ -156,9 +123,7 @@ fetch(`https://api.github.com//orgs/octokit/repos`)
             :
             <span>No user yet...</span>
           }
-          <Wrap>
-        {<canvas id="myChart" width="400" height="400"></canvas>}
-          </Wrap>
+      
         </Wrap>  
       </div>
     );
