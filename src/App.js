@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components'
+import Chart from 'chart.js';
 
 
 const Wrap = styled.div`
@@ -61,7 +62,49 @@ class App extends Component {
   state = {
     user: "JohnDoe",
     value: '',
-    stat: false
+    stat: false,
+    init: null
+  }
+  componentDidMount = () => {
+    var ctx = document.getElementById("myChart");
+var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: ["Red", "Blue", "Yellow"],
+        datasets: [{
+            label: '# of Votes',
+            data: [30, 12],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+               
+            ],
+            borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
+
+fetch(`https://api.github.com//orgs/octokit/repos`)
+.then(data => data.json())
+.then(data => 
+    this.setState({
+    init:data
+    })
+) 
+
   }
 
   getUser = () => {
@@ -82,6 +125,7 @@ class App extends Component {
   }
   render() {
     console.log(this.state.user);
+    console.log("Init:",this.state.init);
     const {login,avatar_url, blog, following, followers, gists_url,bio, company, created_at, hireable, html_url, location, name,subscriptions_url} = this.state.user;
     return (
       <div className="App">
@@ -112,6 +156,9 @@ class App extends Component {
             :
             <span>No user yet...</span>
           }
+          <Wrap>
+        {<canvas id="myChart" width="400" height="400"></canvas>}
+          </Wrap>
         </Wrap>  
       </div>
     );
