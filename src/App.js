@@ -12,7 +12,7 @@ const Wrap = styled.div`
 const Content = styled.div`
   display:grid;
   grid-template-columns:150px 200px;
-  grid-template-rows:auto;
+  grid-template-rows:auto
   align-items:center;
 `;
 const SearchBox = styled.input`
@@ -33,11 +33,14 @@ const Caption = styled.span`
   grid-column-start:1;
   grid-column-end:2;
   padding:10px 0;
+  position:relative;
 `;
 const Paragraph = styled.p`
   font-size:1em;
   padding:10px 0;
   margin:0;
+  width:200px;
+  
 `;
 const Btn = styled.button`
   border: 1px solid #d1d1d1;
@@ -49,11 +52,33 @@ const Btn = styled.button`
   font-size:1em;
   
 `;
+const Take = styled.div`
+  height:100%;
+  max-width:400px;
+  position:absolute;
+  top:0px;
+  right:-350px;
+  display:flex;
+  flex-wrap:wrap;
+  background:gray;
+ 
+`;
+const More = styled.div`
+  position:relative;
+  max-width:250px;
+`;
 const Figure = styled.img`
   grid-column-start:1;
   grid-column-end:3;
   grid-row-start:1;
   grid-rows-end:2;
+`;
+const New = styled.a`
+`;
+const Badget = styled.span`
+background:yellow;
+padding:10px;
+margin:0 5px;
 `;
 class App extends Component {
 
@@ -61,19 +86,9 @@ class App extends Component {
     user: "JohnDoe",
     value: '',
     stat: false,
-    init: null
+    init: null,
+    details: ''
   }
-  componentDidMount = () => {
-fetch(`https://api.github.com/users/tonyspiro/following`)
-.then(data => data.json())
-.then(data => 
-    this.setState({
-    init:data
-    })
-) 
-
-  }
-
   getUser = () => {
     fetch(`https://api.github.com/users/${this.state.value}`)
     .then(data => data.json())
@@ -81,6 +96,15 @@ fetch(`https://api.github.com/users/tonyspiro/following`)
         this.setState({
         user:data,
         stat:true,
+        })
+    )    
+  }
+  moreDetails = () => {
+    fetch(`https://api.github.com/users/${this.state.value}/followers`)
+    .then(data => data.json())
+    .then(data => 
+        this.setState({
+        details:data,
         })
     )    
   }
@@ -92,8 +116,8 @@ fetch(`https://api.github.com/users/tonyspiro/following`)
   }
   render() {
     console.log(this.state.user);
-    console.log("Init:",this.state.init);
-    const {login,avatar_url, blog, following, followers, gists_url,bio, company, created_at, hireable, html_url, location, name,subscriptions_url} = this.state.user;
+    console.log("details", this.state.details)
+    const {login,avatar_url, blog, following, followers, gists_url,bio, company, created_at, hireable, html_url, location, name} = this.state.user;
     return (
       <div className="App">
         <Wrap>
@@ -113,12 +137,27 @@ fetch(`https://api.github.com/users/tonyspiro/following`)
                 <Caption>Login:</Caption> <Paragraph>{login}</Paragraph>
                 <Caption>Location:</Caption> <Paragraph>{location}</Paragraph>
                 <Caption>Created_at:</Caption> <Paragraph>{created_at}</Paragraph>
-                <Caption>Blog_url:</Caption> <Paragraph>{blog}</Paragraph>
-                <Caption>Gists_url:</Caption> <Paragraph>{gists_url}</Paragraph>
+                <Caption>Blog_url:</Caption> <New href={blog} target="_blank" rel="noopener noreferrer">Blog</New>
+                <Caption>Gists_url:</Caption> <New href={gists_url}>Gists</New>
                 <Caption>Following:</Caption> <Paragraph>{following}</Paragraph>
                 <Caption>Followers:</Caption> <Paragraph>{followers}</Paragraph>
                 <Caption>Bio:</Caption> <Paragraph>{bio}</Paragraph>
-                <Caption>Subscription:</Caption> <Paragraph>{subscriptions_url}</Paragraph>
+                <Caption>Followers:</Caption> <More onClick={this.moreDetails}>See more...
+                {this.state.details &&<Take>
+                    {this.state.details.map((item) => {
+                     return(
+                       <Badget key={item.id}> 
+                         {item.login}
+                       </Badget>
+                     )}
+                   )}
+
+                </Take>
+                }
+                </More>
+                <Caption>Company:</Caption> <Paragraph>{company}</Paragraph>
+                <Caption>Hireable:</Caption> <Paragraph>{hireable}</Paragraph>
+                <Caption>Html_url:</Caption> <Paragraph>{html_url}</Paragraph>
               </Content>
             :
             <span>No user yet...</span>
