@@ -96,7 +96,7 @@ class App extends Component {
     stat: false,
     init: null,
     details: '',
-    page: 1
+    page: 0
   }
   getUser = () => {
     fetch(`https://api.github.com/users/${this.state.value}`)
@@ -106,7 +106,7 @@ class App extends Component {
         user:data,
         stat:true,
         details: '',
-        page:1
+        page:0
         })
     ).catch(err => console.log("error", err))  
   }
@@ -172,7 +172,7 @@ class App extends Component {
                 <Caption>Following:</Caption> <Paragraph>{following}</Paragraph>
                 <Caption>Bio:</Caption> <Paragraph>{bio}</Paragraph>
                 <Caption>Followers:</Caption>
-                 { this.state.user && this.state.user.followers &&  <More>{followers} | <Btn2 onClick={this.moreDetails}>More</Btn2><Btn2 onClick={this.moreDetailsReverse}>Less</Btn2>
+                 { this.state.user === null ? "Reach api limit" :  this.state.user.followers &&  <More>{followers} | <Btn2 onClick={this.moreDetails}>More</Btn2><Btn2 onClick={this.moreDetailsReverse}>Less</Btn2>
                 {this.state.details &&<Take>
                     {this.state.details.map((item) => {
                      return(
