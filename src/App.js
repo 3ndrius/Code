@@ -25,6 +25,9 @@ margin: 0 0 15px 0;
 box-sizing:border-box;
 
 `;
+const Btn2 = styled.button`
+  border:none;
+`;
 const Header = styled.h1`
   font-size:3em;
 `;
@@ -54,18 +57,21 @@ const Btn = styled.button`
 `;
 const Take = styled.div`
   height:100%;
-  max-width:400px;
+  max-width:300px;
   position:absolute;
   top:0px;
-  right:-350px;
+  right:-200px;
   display:flex;
   flex-wrap:wrap;
-  background:gray;
+  padding-bottom:20px;
+  margin-bottom:20px;
+
  
 `;
 const More = styled.div`
   position:relative;
   max-width:250px;
+ 
 `;
 const Figure = styled.img`
   grid-column-start:1;
@@ -75,10 +81,12 @@ const Figure = styled.img`
 `;
 const New = styled.a`
 `;
-const Badget = styled.span`
+const Badget = styled.a`
 background:yellow;
 padding:10px;
-margin:0 5px;
+margin:2px 2px;
+font-size:.7em;
+
 `;
 class App extends Component {
 
@@ -87,7 +95,8 @@ class App extends Component {
     value: '',
     stat: false,
     init: null,
-    details: ''
+    details: '',
+    page: 1
   }
   getUser = () => {
     fetch(`https://api.github.com/users/${this.state.value}`)
@@ -96,18 +105,37 @@ class App extends Component {
         this.setState({
         user:data,
         stat:true,
+        details: '',
+        page:1
         })
-    )    
+    ).catch(err => console.log("error", err))  
   }
   moreDetails = () => {
-    fetch(`https://api.github.com/users/${this.state.value}/followers`)
+    if((this.state.user.followers) >= (this.state.page*60 )){
+    fetch(`https://api.github.com/users/${this.state.value}/followers?per_page=60&page=${this.state.page}`)
     .then(data => data.json())
     .then(data => 
         this.setState({
         details:data,
+        page:this.state.page+1,
+        status: true
         })
-    )    
+    )
+    
   }
+}
+   moreDetailsReverse = () => {
+    if((this.state.page > 0 )){
+    fetch(`https://api.github.com/users/${this.state.value}/followers?per_page=60&page=${this.state.page}`)
+    .then(data => data.json())
+    .then(data => 
+        this.setState({
+        details:data,
+        page:this.state.page-1
+        })
+    )
+    }
+   }
   handleChange = (e) => {
     console.log(e.target.value);
     this.setState({
@@ -116,7 +144,8 @@ class App extends Component {
   }
   render() {
     console.log(this.state.user);
-    console.log("details", this.state.details)
+    console.log("details", this.state.details);
+    console.log(this.state.page);
     const {login,avatar_url, blog, following, followers, gists_url,bio, company, created_at, hireable, html_url, location, name} = this.state.user;
     return (
       <div className="App">
@@ -138,16 +167,17 @@ class App extends Component {
                 <Caption>Location:</Caption> <Paragraph>{location}</Paragraph>
                 <Caption>Created_at:</Caption> <Paragraph>{created_at}</Paragraph>
                 <Caption>Blog_url:</Caption> <New href={blog} target="_blank" rel="noopener noreferrer">Blog</New>
+                <Caption>Html_url:</Caption> <New href={html_url} target="_blank" rel="noopener noreferrer">Github</New>
                 <Caption>Gists_url:</Caption> <New href={gists_url}>Gists</New>
                 <Caption>Following:</Caption> <Paragraph>{following}</Paragraph>
                 <Caption>Followers:</Caption> <Paragraph>{followers}</Paragraph>
                 <Caption>Bio:</Caption> <Paragraph>{bio}</Paragraph>
-                <Caption>Followers:</Caption> <More onClick={this.moreDetails}>See more...
+                <Caption>Followers:</Caption> <More> <Btn2 onClick={this.moreDetails}>More</Btn2><Btn2 onClick={this.moreDetailsReverse}>Less</Btn2>
                 {this.state.details &&<Take>
                     {this.state.details.map((item) => {
                      return(
-                       <Badget key={item.id}> 
-                         {item.login}
+                       <Badget  href={item.html_url} key={item.id} target="_blank" rel="noopener noreferrer"> 
+                        {item.login}
                        </Badget>
                      )}
                    )}
@@ -157,7 +187,6 @@ class App extends Component {
                 </More>
                 <Caption>Company:</Caption> <Paragraph>{company}</Paragraph>
                 <Caption>Hireable:</Caption> <Paragraph>{hireable}</Paragraph>
-                <Caption>Html_url:</Caption> <Paragraph>{html_url}</Paragraph>
               </Content>
             :
             <span>No user yet...</span>
