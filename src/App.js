@@ -60,7 +60,7 @@ const Take = styled.div`
   max-width:300px;
   position:absolute;
   top:0px;
-  right:-200px;
+  right:-250px;
   display:flex;
   flex-wrap:wrap;
   padding-bottom:20px;
@@ -170,9 +170,9 @@ class App extends Component {
                 <Caption>Html_url:</Caption> <New href={html_url} target="_blank" rel="noopener noreferrer">Github</New>
                 <Caption>Gists_url:</Caption> <New href={gists_url}>Gists</New>
                 <Caption>Following:</Caption> <Paragraph>{following}</Paragraph>
-                <Caption>Followers:</Caption> <Paragraph>{followers}</Paragraph>
                 <Caption>Bio:</Caption> <Paragraph>{bio}</Paragraph>
-                <Caption>Followers:</Caption> <More> <Btn2 onClick={this.moreDetails}>More</Btn2><Btn2 onClick={this.moreDetailsReverse}>Less</Btn2>
+                <Caption>Followers:</Caption>
+                 { this.state.user && this.state.user.followers &&  <More>{followers} | <Btn2 onClick={this.moreDetails}>More</Btn2><Btn2 onClick={this.moreDetailsReverse}>Less</Btn2>
                 {this.state.details &&<Take>
                     {this.state.details.map((item) => {
                      return(
@@ -185,6 +185,7 @@ class App extends Component {
                 </Take>
                 }
                 </More>
+                 }
                 <Caption>Company:</Caption> <Paragraph>{company}</Paragraph>
                 <Caption>Hireable:</Caption> <Paragraph>{hireable}</Paragraph>
               </Content>
