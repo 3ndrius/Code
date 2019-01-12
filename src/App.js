@@ -26,7 +26,10 @@ box-sizing:border-box;
 
 `;
 const Btn2 = styled.button`
-  border:none;
+border: 1px solid #d1d1d1;
+  padding:4px 6px;
+  background:white;
+  cursor:pointer;
 `;
 const Header = styled.h1`
   font-size:3em;
@@ -37,6 +40,7 @@ const Caption = styled.span`
   grid-column-end:2;
   padding:10px 0;
   position:relative;
+  font-weight:600;
 `;
 const Paragraph = styled.p`
   font-size:1em;
@@ -73,19 +77,36 @@ const More = styled.div`
   max-width:250px;
  
 `;
+const Circle = styled.span`
+border: 1px solid #d1d1d1;
+border-radius:50%;
+padding:4px;
+margin-right:5px;
+font-size:.6em;
+ 
+`;
 const Figure = styled.img`
   grid-column-start:1;
   grid-column-end:3;
   grid-row-start:1;
   grid-rows-end:2;
+  border: 1px solid #d1d1d1;
 `;
 const New = styled.a`
+  color:black;
+  font-weight:500;
+  text-decoration:none;
+  ::after{
+    content:' \f064';
+    font-family: 'FontAwesome';
+  }
 `;
 const Badget = styled.a`
 background:yellow;
 padding:10px;
 margin:2px 2px;
 font-size:.7em;
+color:black;
 
 `;
 class App extends Component {
@@ -111,18 +132,21 @@ class App extends Component {
     ).catch(err => console.log("error", err))  
   }
   moreDetails = () => {
-    if((this.state.user.followers) >= (this.state.page*60 )){
-    fetch(`https://api.github.com/users/${this.state.value}/followers?per_page=60&page=${this.state.page}`)
-    .then(data => data.json())
-    .then(data => 
-        this.setState({
-        details:data,
-        page:this.state.page+1,
-        status: true
-        })
-    )
+
+    if((this.state.user.followers) >= (this.state.page*60)){
+      fetch(`https://api.github.com/users/${this.state.value}/followers?per_page=60&page=${this.state.page}`)
+      .then(data => data.json())
+      .then(data => 
+          this.setState({
+          details:data,
+          page:this.state.page+1,
+          status: true
+          })
+      )
     
-  }
+    }
+
+  console.log("Limit reached");
 }
    moreDetailsReverse = () => {
     if((this.state.page > 0 )){
@@ -146,7 +170,7 @@ class App extends Component {
     console.log(this.state.user);
     console.log("details", this.state.details);
     console.log(this.state.page);
-    const {login,avatar_url, blog, following, followers, gists_url,bio, company, created_at, hireable, html_url, location, name} = this.state.user;
+    const {login,avatar_url, blog, following, followers,bio, company, created_at, hireable, html_url, location, name} = this.state.user;
     return (
       <div className="App">
         <Wrap>
@@ -158,7 +182,7 @@ class App extends Component {
         </Wrap>
         <Wrap>
           {
-          ( this.state.user.message) ? "User not found" :
+          ( this.state.user.message) ? "User not found or limit reached" :
             this.state.stat ?
               <Content>
                 <Figure src={avatar_url} alt="avatar" height="auto" width="300px"/><span></span>
@@ -167,14 +191,13 @@ class App extends Component {
                 <Caption>Location:</Caption> <Paragraph>{location}</Paragraph>
                 <Caption>Created_at:</Caption> <Paragraph>{created_at}</Paragraph>
                 <Caption>Blog_url:</Caption> <New href={blog} target="_blank" rel="noopener noreferrer">Blog</New>
-                <Caption>Html_url:</Caption> <New href={html_url} target="_blank" rel="noopener noreferrer">Github</New>
-                <Caption>Gists_url:</Caption> <New href={gists_url}>Gists</New>
-                <Caption>Following:</Caption> <Paragraph>{following}</Paragraph>
+                <Caption>Html_url:</Caption> <New href={html_url} target="_blank" rel="noopener noreferrer">Github</New>                
+                <Caption>Company:</Caption> <Paragraph>{company}</Paragraph>
                 <Caption>Bio:</Caption> <Paragraph>{bio}</Paragraph>
                 <Caption>Followers:</Caption>
-                 { this.state.user === null ? "Reach api limit" :  this.state.user.followers &&  <More>{followers} | <Btn2 onClick={this.moreDetails}>More</Btn2><Btn2 onClick={this.moreDetailsReverse}>Less</Btn2>
-                {this.state.details &&<Take>
-                    {this.state.details.map((item) => {
+                { this.state.user.followers && <More><Circle>{followers}</Circle><Btn2 onClick={this.moreDetails}>More</Btn2><Btn2 onClick={this.moreDetailsReverse}>Less</Btn2>
+                {this.state.user && <Take>
+                    { this.state.details && this.state.details.map((item) => {
                      return(
                        <Badget  href={item.html_url} key={item.id} target="_blank" rel="noopener noreferrer"> 
                         {item.login}
@@ -186,8 +209,9 @@ class App extends Component {
                 }
                 </More>
                  }
-                <Caption>Company:</Caption> <Paragraph>{company}</Paragraph>
+                <Caption>Following:</Caption> <Paragraph><Circle>{following}</Circle></Paragraph>
                 <Caption>Hireable:</Caption> <Paragraph>{hireable}</Paragraph>
+
               </Content>
             :
             <span>No user yet...</span>
