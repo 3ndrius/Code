@@ -112,12 +112,13 @@ color:black;
 class App extends Component {
 
   state = {
-    user: "JohnDoe",
+    user: "",
     value: '',
     stat: false,
     init: null,
     details: '',
-    page: 0
+    page: 0,
+    limit: 1
   }
   getUser = () => {
     fetch(`https://api.github.com/users/${this.state.value}`)
@@ -127,12 +128,12 @@ class App extends Component {
         user:data,
         stat:true,
         details: '',
-        page:0
+        page:0,
+        limit : this.state.limit + 1
         })
-    ).catch(err => console.log("error", err))  
+    )
   }
   moreDetails = () => {
-
     if((this.state.user.followers) >= (this.state.page*60)){
       fetch(`https://api.github.com/users/${this.state.value}/followers?per_page=60&page=${this.state.page}`)
       .then(data => data.json())
@@ -140,14 +141,18 @@ class App extends Component {
           this.setState({
           details:data,
           page:this.state.page+1,
-          status: true
+          status: true,
+          limit : this.state.limit + 1
+
           })
       )
     
     }
-
-  console.log("Limit reached");
 }
+ handleSubmit(e){
+    e.preventDefault();
+    console.log("submit");
+ }
    moreDetailsReverse = () => {
     if((this.state.page > 0 )){
     fetch(`https://api.github.com/users/${this.state.value}/followers?per_page=60&page=${this.state.page}`)
@@ -155,7 +160,8 @@ class App extends Component {
     .then(data => 
         this.setState({
         details:data,
-        page:this.state.page-1
+        page:this.state.page-1,
+        limit : this.state.limit + 1
         })
     )
     }
@@ -163,13 +169,12 @@ class App extends Component {
   handleChange = (e) => {
     console.log(e.target.value);
     this.setState({
-      value: e.target.value
+      value: e.target.value,
     })
   }
   render() {
-    console.log(this.state.user);
-    console.log("details", this.state.details);
-    console.log(this.state.page);
+    console.log(this.state.limit);
+
     const {login,avatar_url, blog, following, followers,bio, company, created_at, hireable, html_url, location, name} = this.state.user;
     return (
       <div className="App">
@@ -177,26 +182,27 @@ class App extends Component {
           <Header>GithubUserFinder</Header>
         </Wrap>
         <Wrap>
+          <form onSubmit={this.handleSubmit}>
           <SearchBox onChange={this.handleChange} value={this.state.value} placeholder="Username"/>
           <Btn onClick={this.getUser}>Search</Btn>
+          </form>
         </Wrap>
         <Wrap>
           {
-          ( this.state.user.message) ? "User not found or limit reached" :
-            this.state.stat ?
+            this.state.user ?
               <Content>
                 <Figure src={avatar_url} alt="avatar" height="auto" width="300px"/><span></span>
-                <Caption>Name:</Caption> <Paragraph>{name}</Paragraph>
-                <Caption>Login:</Caption> <Paragraph>{login}</Paragraph>
-                <Caption>Location:</Caption> <Paragraph>{location}</Paragraph>
+                <Caption>Name:</Caption> {name ? <Paragraph>{name}</Paragraph> : "__blank" }
+                <Caption>Login:</Caption> {login ? <Paragraph>{login}</Paragraph> : "__blank"}
+                <Caption>Location:</Caption> {location ? <Paragraph>{location}</Paragraph> : "__blank"}
                 <Caption>Created_at:</Caption> <Paragraph>{created_at}</Paragraph>
-                <Caption>Blog_url:</Caption> <New href={blog} target="_blank" rel="noopener noreferrer">Blog</New>
-                <Caption>Html_url:</Caption> <New href={html_url} target="_blank" rel="noopener noreferrer">Github</New>                
-                <Caption>Company:</Caption> <Paragraph>{company}</Paragraph>
-                <Caption>Bio:</Caption> <Paragraph>{bio}</Paragraph>
+                <Caption>Blog_url:</Caption> {blog ? <New href={blog} target="_blank" rel="noopener noreferrer">Blog</New> : "__blank" }
+                <Caption>Html_url:</Caption> {html_url ? <New href={html_url} target="_blank" rel="noopener noreferrer">Github</New>  : "__blank"}            
+                <Caption>Company:</Caption> {company ? <Paragraph>{company}</Paragraph> : "__blank"}
+                <Caption>Bio:</Caption> {bio ? <Paragraph>{bio}</Paragraph> : "__blank" }
                 <Caption>Followers:</Caption>
-                { this.state.user.followers && <More><Circle>{followers}</Circle><Btn2 onClick={this.moreDetails}>More</Btn2><Btn2 onClick={this.moreDetailsReverse}>Less</Btn2>
-                {this.state.user && <Take>
+                {(this.state.limit > 58) ? "You reach limit" : followers && <More><Circle>{followers}</Circle><Btn2 onClick={this.moreDetails}>More</Btn2><Btn2 onClick={this.moreDetailsReverse}>Less</Btn2>
+                {<Take>
                     { this.state.details && this.state.details.map((item) => {
                      return(
                        <Badget  href={item.html_url} key={item.id} target="_blank" rel="noopener noreferrer"> 
@@ -209,8 +215,8 @@ class App extends Component {
                 }
                 </More>
                  }
-                <Caption>Following:</Caption> <Paragraph><Circle>{following}</Circle></Paragraph>
-                <Caption>Hireable:</Caption> <Paragraph>{hireable}</Paragraph>
+                <Caption>Following:</Caption> {following ? <Paragraph><Circle>{following}</Circle></Paragraph> : "__blank"}
+                <Caption>Hireable:</Caption> <Paragraph>{hireable ? "Yes" : "No"}</Paragraph>
 
               </Content>
             :
